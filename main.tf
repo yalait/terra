@@ -83,7 +83,7 @@ resource "vcd_vapp_vm" "TestVm" {
   }
 }
 
-#Test vm dynamic inventory
+#Фрагмент кода, который вы предоставили, использует блок locals в Terraform для создания переменной, которая будет содержать список IP-адресов виртуальных машин, определенных в ресурсе vcd_vapp_vm.TestVm.
 locals {
   vm_ips = flatten([
     for vm in vcd_vapp_vm.TestVm : [
@@ -92,11 +92,12 @@ locals {
   ])
 }
 
+#в Terraform используется для создания вывода, который предоставляет доступ к определенным значениям или переменным из вашей конфигурации Terraform после её выполнения. В данном случае, output "vm_ips" позволяет вам создать вывод с именем vm_ips и присвоить ему значение, которое содержится в переменной local.vm_ips.
 output "vm_ips" {
   value = local.vm_ips
 }
 
-
+#Фрагмент resource "local_file" "hosts_cfg" в Terraform используется для создания файла на локальной системе на основе содержимого и шаблона. В данном случае, этот ресурс используется для создания файла hosts.cfg на основе шаблона hosts.tpl, подставляя значения из переменной local.vm_ips в шаблон.
 resource "local_file" "hosts_cfg" {
   content = templatefile("${path.module}/hosts.tpl",
     {
