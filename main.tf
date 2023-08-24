@@ -65,10 +65,8 @@ resource "vcd_vapp_vm" "TestVm" {
     value = templatefile("${path.module}/userdata.tpl", {
       ip_address = "192.168.5.${count.index + 236}"
       gateway    = "192.168.5.1"
-      nameserver1 = "8.8.8.8"
-      nameserver2 = "8.8.4.4"
       hostname  = "test-vm${count.index + 1}"
-      dns_servers = ["8.8.8.8"]
+      dns_servers = "8.8.8.8"
     })
     is_system = false
     type      = "MetadataStringValue"
@@ -103,15 +101,17 @@ resource "local_file" "hosts_cfg" {
 
 #ANSIBLE
 resource "null_resource" "ansible_provisioner" {
-    #variable were defining above
-  for_each = toset(local.vm_ips)
+  count = length(local.vm_ips)
 
   triggers = {
-    vm_ip = each.key
+    vm_index = count.index
   }
 
   provisioner "local-exec" {
-    command = "ansible-playbook -u onlanta -i hosts.cfg provision.yml"
+    command = <<-EOT
+      ansible-playbook -i "${path.module}/hosts.cfg" \
+                       -u onlanta provision.yml
+    EOT
   }
 }
 
