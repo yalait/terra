@@ -1,0 +1,29 @@
+- name: Provision VMs
+  hosts: TestVm
+  #remote_user: onlanta
+  become: yes  # If you need elevated privileges
+
+  tasks:
+    - name: Read device information (always use unit when probing)
+      community.general.parted: device=/dev/sda unit=MiB
+      register: sda_info
+
+    - name: Extend an existing partition to fill all available space
+      community.general.parted:
+        device: /dev/sda
+        number: "{{ sda_info.partitions | length }}"
+        part_end: "100%"
+        resize: true
+        state: present
+
+    - name: Create a volume group on top of /dev/sda3 and resize the volume group /dev/sda3 to the maximum possible
+      community.general.lvg:
+        vg: centos
+        pvs: /dev/sda2
+        pvresize: true
+
+    - name: Extend the logical volume to consume all remaining space in the volume group
+      community.general.lvol:
+        vg: centos
+        lv: root
+        size: +100%FREE
