@@ -6,12 +6,12 @@ provider "vcd" {
   url                    = ""
 }
 
-#SET a TEMPLATE
+#используется для извлечения информации о каталоге из VMware Cloud Director (vCD).
 data "vcd_catalog" "my-catalog" {
   org  = "unix_u4"
   name = "VK_S3_TEMPL"
 }
-
+#представляет конфигурацию Terraform для извлечения информации о шаблоне виртуальной машины из каталога VMware Cloud Director (vCD).
 data "vcd_catalog_vapp_template" "centos7" {
   org        = "unix_u4"
   catalog_id = data.vcd_catalog.my-catalog.id
@@ -27,6 +27,7 @@ data "vcd_catalog_vapp_template" "centos7" {
 #  bus_sub_type = "VirtualSCSI"
 #}
 
+#представляет конфигурацию Terraform для создания или управления виртуальной машиной в VMware Cloud Director (vCD).
 resource "vcd_vapp_vm" "TestVm" {
   count = 3  # This will create three instances
 
@@ -39,7 +40,7 @@ resource "vcd_vapp_vm" "TestVm" {
   hardware_version = "vmx-15"
 
   os_type = "centos7_64Guest"
-  #call a template
+  #используется для получения идентификатора (ID) шаблона виртуальной машины из ранее извлеченной информации с использованием блока data "vcd_catalog_vapp_template" "centos7".
   vapp_template_id = data.vcd_catalog_vapp_template.centos7.id
   # Other instance-specific configurations here...
 
@@ -54,6 +55,7 @@ resource "vcd_vapp_vm" "TestVm" {
   }
 
 #SHIT FUNCTION not mentioned in https://registry.terraform.io/providers/vmware/vcd/latest/docs this bull shit override your template disk while creating vm
+#переопределить дисковые параметры для создания виртуальной машины на основе шаблона виртуальной машины.
   override_template_disk {
     bus_type = "paravirtual"
     size_in_mb = "32768"
@@ -62,13 +64,7 @@ resource "vcd_vapp_vm" "TestVm" {
     #storage_profile = var.vcd_org_ssd_sp
 }
 
-#  disk {
-#    name        = "disk${count.index + 1}"
-#    #label       = "disk${count.index + 1}"
-#    #size        = 4000
-#    unit_number = count.index + 2
-#    bus_number = 2
-#  }
+#блок используется для определения параметров, которые позволяют настроить виртуальную машину на этапе развертывания.
   customization {
     enabled = true
   }
