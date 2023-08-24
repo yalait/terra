@@ -1,14 +1,16 @@
 #cloud-config
-# userdata.tpl
-# Cloud-init script template
-ip_address  = "${ip_address}"
-gateway     = "${gateway}"
-hostname    = "${hostname}"
-dns_servers = "${dns_servers}"
+network:
+  version: 2
+  ethernets:
+    ens192:
+      dhcp4: false
+      addresses:
+        - ${ip_address}/24
+      gateway4: 192.168.5.1
+      nameservers:
+        addresses:
+          - 8.8.8.8
+          - 8.8.4.4
 
-## DNS settings
-#write_files:
-  #- path: /etc/resolv.conf
-    #content: |
-      #nameserver 8.8.8.8
-      #nameserver 8.8.4.4
+bootcmd:
+  - echo nameserver 8.8.4.4 >> /etc/resolv.conf
