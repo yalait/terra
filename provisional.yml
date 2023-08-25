@@ -27,3 +27,4 @@
         vg: centos
         lv: root
         size: +100%FREE
+        resizefs: true
