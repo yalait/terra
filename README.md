@@ -3,3 +3,4 @@
 * TF_VAR_ssh_args="-o StrictHostKeyChecking=no" terraform apply
 * #скачать говно для parted
 * ansible-galaxy collection install community.general
+* на шаблоне с cloudinit необходимо отредачить  конфиг сети перевести его в статик
