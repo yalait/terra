@@ -47,7 +47,7 @@ resource "vcd_vapp_vm" "TestVm" {
   network {
     adapter_type       = "VMXNET3"
     connected          = true
-    ip                 = "192.168.5.${count.index + 236}"
+    ip                 = "192.168.5.${count.index + 60}"
     ip_allocation_mode = "MANUAL"
     is_primary         = true
     name               = "s3_net"
@@ -67,19 +67,6 @@ resource "vcd_vapp_vm" "TestVm" {
 #блок используется для определения параметров, которые позволяют настроить виртуальную машину на этапе развертывания.
   customization {
     enabled = true
-  }
-  #cloud-shit https://registry.terraform.io/providers/vmware/vcd/latest/docs/resources/catalog.html#metadata_entry
-  metadata_entry {
-    key   = "user_data"
-    value = templatefile("${path.module}/userdata.tpl", {
-      ip_address = "192.168.5.${count.index + 236}"
-      gateway    = "192.168.5.1"
-      hostname  = "test-vm${count.index + 1}"
-      dns_servers = "8.8.4.4"
-    })
-    is_system = false
-    type      = "MetadataStringValue"
-    user_access = "READWRITE"
   }
 }
 
