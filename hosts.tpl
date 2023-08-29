@@ -1,4 +1,3 @@
-[TestVm]
-%{ for ip in vm_ips ~}
-${ip}
+%{ for key, value in array ~}
+${value} ${key} ${key}.vk-test.local
 %{ endfor ~}
