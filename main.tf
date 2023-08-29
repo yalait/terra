@@ -18,6 +18,7 @@ data "vcd_catalog_vapp_template" "centos7" {
   name       = "vk-temp"
 }
 
+#ОПИСЫВАЕМ КАКИЕ-то НЕЗАВИСИМЫЕ ДИСКИ
 #STORAGE
 resource "vcd_independent_disk" "stor" {
   count = 3
@@ -33,7 +34,6 @@ resource "vcd_independent_disk" "storage" {
   bus_type     = "SCSI"
   bus_sub_type = "VirtualSCSI"
 }
-
 #META
 resource "vcd_independent_disk" "meta" {
   count = 3
