@@ -1,5 +1,7 @@
 - name: Provision VMs
-  hosts: TestVm
+  hosts: all
+  vars:
+      ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
   #remote_user: onlanta
   become: yes  # If you need elevated privileges
 
@@ -28,3 +30,27 @@
         lv: root
         size: +100%FREE
         resizefs: true
+
+    - name: Create the group
+      group:
+        name: deploy
+      become: yes
+
+    - name: Add the user 'deploy' with a bash shell, appending the group 'wheel' and 'deploy' to the user's groups
+      ansible.builtin.user:
+        name: centos
+        shell: /bin/bash
+        groups: wheel,deploy
+        append: yes
+        password: "{{ 'Asd#21' | password_hash('sha512', 'mysecretsalt') }}"
+
+    - name: Copy SSH public key to authorized_keys
+      ansible.builtin.authorized_key:
+        user: centos
+        key: "{{ lookup('file', '/home/centos/.ssh/id_rsa.pub') }}"
+        state: present
+
+    - name: copy hosts
+      ansible.builtin.blockinfile:
+        path: /etc/hosts
+        block: "{{ lookup('file', 'hosts.cfg')}}"
