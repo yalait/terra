@@ -18,7 +18,6 @@ data "vcd_catalog_vapp_template" "centos7" {
   name       = "vk-temp"
 }
 
-#ОПИСЫВАЕМ КАКИЕ-то НЕЗАВИСИМЫЕ ДИСКИ
 #STORAGE
 resource "vcd_independent_disk" "stor" {
   count = 3
@@ -28,14 +27,17 @@ resource "vcd_independent_disk" "stor" {
   bus_sub_type = "VirtualSCSI"
 }
 resource "vcd_independent_disk" "storage" {
+  depends_on = [vcd_independent_disk.stor]
   count = 3
   name         = "storage${count.index + 1}"
   size_in_mb   = "307200"
   bus_type     = "SCSI"
   bus_sub_type = "VirtualSCSI"
 }
+
 #META
 resource "vcd_independent_disk" "meta" {
+  depends_on = [vcd_independent_disk.storage]
   count = 3
   name         = "meta${count.index + 1}"
   size_in_mb   = "153600"
@@ -46,6 +48,7 @@ resource "vcd_independent_disk" "meta" {
 #STORAGE
 #представляет конфигурацию Terraform для создания или управления виртуальной машиной в VMware Cloud Director (vCD).
 resource "vcd_vapp_vm" "storage" {
+  depends_on = [vcd_independent_disk.meta]
   count = 3  # This will create three instances
 
   vapp_name     = "vk-storage"
@@ -102,6 +105,7 @@ disk {
 #STORAGE
 #представляет конфигурацию Terraform для создания или управления виртуальной машиной в VMware Cloud Director (vCD).
 resource "vcd_vapp_vm" "meta" {
+  depends_on = [vcd_vapp_vm.storage]
   count = 3  # This will create three instances
 
   vapp_name     = "vk-meta"
@@ -152,6 +156,7 @@ disk {
 #FRONT
 #представляет конфигурацию Terraform для создания или управления виртуальной машиной в VMware Cloud Director (vCD).
 resource "vcd_vapp_vm" "front" {
+  depends_on = [vcd_vapp_vm.meta]
   count = 2  # This will create three instances
 
   vapp_name     = "vk-front"
@@ -196,7 +201,7 @@ resource "vcd_vapp_vm" "front" {
 #MONITOR
 #представляет конфигурацию Terraform для создания или управления виртуальной машиной в VMware Cloud Director (vCD).
 resource "vcd_vapp_vm" "monitoring" {
-
+  depends_on = [vcd_vapp_vm.front]
   vapp_name     = "vk-monitoring"
   name          = "monitor-1"
   computer_name = "monitor-1"
@@ -229,7 +234,7 @@ resource "vcd_vapp_vm" "monitoring" {
 #BALANCER
 #представляет конфигурацию Terraform для создания или управления виртуальной машиной в VMware Cloud Director (vCD).
 resource "vcd_vapp_vm" "balancer" {
-
+  depends_on = [vcd_vapp_vm.monitoring]
   vapp_name     = "vk-balancer"
   name          = "balancer-1"
   computer_name = "balancer-1"
@@ -262,7 +267,7 @@ resource "vcd_vapp_vm" "balancer" {
 #IAM
 #представляет конфигурацию Terraform для создания или управления виртуальной машиной в VMware Cloud Director (vCD).
 resource "vcd_vapp_vm" "iam" {
-
+  depends_on = [vcd_vapp_vm.balancer]
   vapp_name     = "S3"
   name          = "iam"
   computer_name = "iam"
